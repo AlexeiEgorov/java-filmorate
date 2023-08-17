@@ -42,7 +42,7 @@ public class UserControllerTest {
         assertEquals("Caleb", userController.addUser(user4).getName(), "Контроллер" +
                 " добавил пользователя без имени и не установил его равным логину");
 
-        final User user5 = new User("@emailcom", "Caleb", "" ,
+        final User user5 = new User("@emailcom", "Caleb", "",
                 LocalDate.now().plusDays(1));
         assertThrows(FutureBirthDateException.class, () -> userController.addUser(user5), "Контроллер" +
                 " добавил пользователя с будущим днём рождения");
