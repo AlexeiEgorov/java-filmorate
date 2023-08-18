@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 public class OnOrAfterDateConstraintValidator implements ConstraintValidator<OnOrAfterDate, LocalDate> {
     private LocalDate annotationDate;
+
     @Override
     public void initialize(OnOrAfterDate onOrAfterDate) {
         this.annotationDate = LocalDate.parse(onOrAfterDate.value());
