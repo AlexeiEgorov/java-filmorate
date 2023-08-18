@@ -17,9 +17,9 @@ import java.time.LocalDate;
 public class User {
     private int id;
     @NotNull(message = "email должен пыть передан")
+    @NotBlank(message = "email не может быть пустым")
     @Email(message = "email должен быть валиден")
     private final String email;
-    @NotNull(message = "логин должен быть передан")
     @NotBlank(message = "логин не может быть пустым")
     private final String login;
     private final String name;

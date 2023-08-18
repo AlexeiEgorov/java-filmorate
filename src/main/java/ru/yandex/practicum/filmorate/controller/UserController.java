@@ -2,10 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.FutureBirthDateException;
-import ru.yandex.practicum.filmorate.exception.InvalidLoginException;
-import ru.yandex.practicum.filmorate.exception.NoAtSignSymbolInEmailException;
-import ru.yandex.practicum.filmorate.exception.NoSuchUserException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
@@ -16,7 +13,7 @@ import java.util.*;
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-    private final Set<User> users = new HashSet<>();
+    private final Map<Integer, User> users = new HashMap<>();
     private int nextUserId = 1;
 
     @PostMapping
@@ -24,51 +21,49 @@ public class UserController {
     public User addUser(@Valid @RequestBody User user) {
         if (!user.getEmail().contains("@")) {
             log.debug("Клиент пытается зарегестрироваться используя невалидный email: {}", user.getEmail());
-            throw new NoAtSignSymbolInEmailException();
+            throw new ValidationException("Невалидный email");
         } else if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
             log.debug("Клиент пытается зарегестрироваться используя невалидный логин: {}", user.getLogin());
-            throw new InvalidLoginException();
+            throw new ValidationException("Невалидный логин");
         } else if (user.getBirthday().isAfter(LocalDate.now())) {
             log.debug("Клиент пытается зарегестрироваться используя будущую дату рождения: {}",
                     user.getBirthday());
-            throw new FutureBirthDateException();
+            throw new ValidationException("Дата рождения в будущем");
         } else if (user.getName() == null || user.getName().isBlank()) {
             log.debug("Клиент регестрируется не вводя имени, и оно замещается логином: {}", user.getLogin());
             user = user.toBuilder().name(user.getLogin()).build();
         }
         user.setId(nextUserId++);
-        users.add(user);
+        users.put(user.getId(), user);
         return user;
     }
 
     @PutMapping
     @ResponseBody
     public User updateUser(@Valid @RequestBody User user) {
-        if (!users.contains(user)) {
+        if (users.get(user.getId()) == null) {
             log.debug("Клиент пытается обновить пользователя с несуществующим id: {}", user.getId());
-            throw new NoSuchUserException();
+            throw new EntityNotFoundException(user.getClass().toString());
         } else if (!user.getEmail().contains("@")) {
-            log.debug("Клиент пытается обновить пользователя используя невалидный email: {}", user.getEmail());
-            throw new NoAtSignSymbolInEmailException();
+            log.debug("Клиент пытается зарегестрироваться используя невалидный email: {}", user.getEmail());
+            throw new ValidationException("Невалидный email");
         } else if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.debug("Клиент пытается обновить пользователя используя невалидный логин: {}", user.getLogin());
-            throw new InvalidLoginException();
+            log.debug("Клиент пытается зарегестрироваться используя невалидный логин: {}", user.getLogin());
+            throw new ValidationException("Невалидный логин");
         } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Клиент пытается обновить пользователя используя будущую дату рождения: {}", user.getBirthday());
-            throw new FutureBirthDateException();
-        } else if (user.getName().isBlank()) {
-            log.debug("Клиент пытается обновить пользователя не вводя имени, и оно замещается логином: {}",
-                    user.getLogin());
+            log.debug("Клиент пытается зарегестрироваться используя будущую дату рождения: {}", user.getBirthday());
+            throw new ValidationException("Дата рождения в будущем");
+        } else if (user.getName() == null || user.getName().isBlank()) {
+            log.debug("Клиент регестрируется не вводя имени, и оно замещается логином: {}", user.getLogin());
             user = user.toBuilder().name(user.getLogin()).build();
         }
-        users.remove(user);
-        users.add(user);
+        users.put(user.getId(), user);
         return user;
     }
 
     @GetMapping
     @ResponseBody
     public List<User> getUsers() {
-        return new ArrayList<>(users);
+        return new ArrayList<>(users.values());
     }
 }
