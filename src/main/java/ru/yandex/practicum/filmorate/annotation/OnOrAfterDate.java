@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 
 public @interface OnOrAfterDate {
     String value();
-    String message() default "{AfterDate}";
+    String message() default "{OnOrAfterDate}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

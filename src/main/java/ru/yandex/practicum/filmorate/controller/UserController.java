@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -19,18 +18,7 @@ public class UserController {
     @PostMapping
     @ResponseBody
     public User addUser(@Valid @RequestBody User user) {
-        if (!user.getEmail().contains("@")) {
-            log.debug("Клиент пытается зарегестрироваться используя невалидный email: {}", user.getEmail());
-            throw new ValidationException("Невалидный email");
-        } else if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.debug("Клиент пытается зарегестрироваться используя невалидный логин: {}", user.getLogin());
-            throw new ValidationException("Невалидный логин");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Клиент пытается зарегестрироваться используя будущую дату рождения: {}",
-                    user.getBirthday());
-            throw new ValidationException("Дата рождения в будущем");
-        } else if (user.getName() == null || user.getName().isBlank()) {
-            log.debug("Клиент регестрируется не вводя имени, и оно замещается логином: {}", user.getLogin());
+        if (isUserNameEmpty(user)) {
             user = user.toBuilder().name(user.getLogin()).build();
         }
         user.setId(nextUserId++);
@@ -44,17 +32,8 @@ public class UserController {
         if (users.get(user.getId()) == null) {
             log.debug("Клиент пытается обновить пользователя с несуществующим id: {}", user.getId());
             throw new EntityNotFoundException(user.getClass().toString());
-        } else if (!user.getEmail().contains("@")) {
-            log.debug("Клиент пытается зарегестрироваться используя невалидный email: {}", user.getEmail());
-            throw new ValidationException("Невалидный email");
-        } else if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.debug("Клиент пытается зарегестрироваться используя невалидный логин: {}", user.getLogin());
-            throw new ValidationException("Невалидный логин");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Клиент пытается зарегестрироваться используя будущую дату рождения: {}", user.getBirthday());
-            throw new ValidationException("Дата рождения в будущем");
-        } else if (user.getName() == null || user.getName().isBlank()) {
-            log.debug("Клиент регестрируется не вводя имени, и оно замещается логином: {}", user.getLogin());
+        }
+        if (isUserNameEmpty(user)) {
             user = user.toBuilder().name(user.getLogin()).build();
         }
         users.put(user.getId(), user);
@@ -65,5 +44,13 @@ public class UserController {
     @ResponseBody
     public List<User> getUsers() {
         return new ArrayList<>(users.values());
+    }
+
+    private static boolean isUserNameEmpty(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.debug("Клиент регестрируется не вводя имени, и оно замещается логином: {}", user.getLogin());
+            return true;
+        }
+        return false;
     }
 }

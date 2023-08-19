@@ -15,7 +15,7 @@ public class OnOrAfterDateConstraintValidator implements ConstraintValidator<OnO
     @Override
     public boolean isValid(LocalDate target, ConstraintValidatorContext cxt) {
         if (target == null) {
-            return false;
+            return true;
         }
         return target.isAfter(annotationDate) || target.isEqual(annotationDate);
     }
