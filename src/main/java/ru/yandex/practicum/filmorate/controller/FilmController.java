@@ -17,7 +17,6 @@ public class FilmController {
 
 
     @PostMapping
-    @ResponseBody
     public Film addFilm(@Valid @RequestBody Film film) {
         film.setId(nextFilmId++);
         films.put(film.getId(), film);
@@ -25,7 +24,6 @@ public class FilmController {
     }
 
     @PutMapping
-    @ResponseBody
     public Film updateFilm(@Valid @RequestBody Film film) {
         if (films.get(film.getId()) == null) {
             log.debug("Клиент пытается обновить фильм с незарегестрированным id: {}", film.getId());
@@ -36,7 +34,6 @@ public class FilmController {
     }
 
     @GetMapping
-    @ResponseBody
     public List<Film> getFilms() {
         return new ArrayList<>(films.values());
     }

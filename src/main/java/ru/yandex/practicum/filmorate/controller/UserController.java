@@ -16,7 +16,6 @@ public class UserController {
     private int nextUserId = 1;
 
     @PostMapping
-    @ResponseBody
     public User addUser(@Valid @RequestBody User user) {
         if (isUserNameEmpty(user)) {
             user = user.toBuilder().name(user.getLogin()).build();
@@ -27,7 +26,6 @@ public class UserController {
     }
 
     @PutMapping
-    @ResponseBody
     public User updateUser(@Valid @RequestBody User user) {
         if (users.get(user.getId()) == null) {
             log.debug("Клиент пытается обновить пользователя с несуществующим id: {}", user.getId());
@@ -41,7 +39,6 @@ public class UserController {
     }
 
     @GetMapping
-    @ResponseBody
     public List<User> getUsers() {
         return new ArrayList<>(users.values());
     }
