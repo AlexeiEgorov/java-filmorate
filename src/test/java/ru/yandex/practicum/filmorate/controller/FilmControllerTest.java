@@ -4,12 +4,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +26,7 @@ public class FilmControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        filmController = new FilmController();
+        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage()));
     }
 
     @Test
@@ -55,7 +60,8 @@ public class FilmControllerTest {
     void updateFilm() {
         filmController.addFilm(new Film("Millennium Actress", "", LocalDate.now(), 1));
 
-        final Film film2 = new Film(2, "Gray Terminal", "", LocalDate.now(), 1);
+        final Film film2 = new Film(2, "Gray Terminal", "", LocalDate.now(), 1,
+                new HashSet<>());
         assertThrows(EntityNotFoundException.class, () -> filmController.updateFilm(film2), "Контроллер " +
                 "пропустил фильм с незарегестрированным id");
     }
@@ -66,13 +72,13 @@ public class FilmControllerTest {
         final Film film2 = new Film("Berserk", "", LocalDate.now(), 1);
         final Film film3 = new Film("Millennium Actress", "", LocalDate.now(), 1);
         final Film newFilm2 = new Film(2, "Berserk", "",
-                LocalDate.of(1997, 10, 15), 1);
+                LocalDate.of(1997, 10, 15), 1, new HashSet<>());
 
         filmController.addFilm(film1);
         filmController.addFilm(film2);
         filmController.addFilm(film3);
         filmController.updateFilm(newFilm2);
-        assertEquals(List.of(film1, newFilm2, film3), filmController.getFilms(), "Контроллер " +
-                "вернул неподходящий список фильмов");
+        assertEquals(List.of(film1, newFilm2, film3), new ArrayList<>(filmController.getFilms()),
+                "Контроллер вернул неподходящий список фильмов");
     }
 }

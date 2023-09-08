@@ -4,11 +4,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +25,7 @@ public class UserControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        userController = new UserController();
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test
@@ -64,7 +68,7 @@ public class UserControllerTest {
                 LocalDate.of(2000, 1, 1)));
 
         final User user2 = new User(2, "@emailcom", "Caleb", "",
-                LocalDate.now().minusYears(1));
+                LocalDate.now().minusYears(1), new HashSet<>());
         assertThrows(EntityNotFoundException.class, () -> userController.updateUser(user2), "Контроллер " +
                 "пропустил фильм с незарегестрированным id");
     }
@@ -78,12 +82,12 @@ public class UserControllerTest {
         final User user3 = new User("@emailcom", "login", "Vitaliy",
                 LocalDate.of(2000, 1, 1));
         final User newUser3 = new User(3, "@emailcom", "EvilArthas", "Vitaliy",
-                LocalDate.of(2000, 1, 1));
+                LocalDate.of(2000, 1, 1), new HashSet<>());
         userController.addUser(user1);
         userController.addUser(user2);
         userController.addUser(user3);
         userController.updateUser(newUser3);
 
-        assertEquals(List.of(user1, user2, newUser3), userController.getUsers());
+        assertEquals(List.of(user1, user2, newUser3), new ArrayList<>(userController.getUsers()));
     }
 }

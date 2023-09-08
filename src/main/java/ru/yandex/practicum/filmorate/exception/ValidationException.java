@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class EntityNotFoundException extends RuntimeException {
-    private final String entityClass;
+public class ValidationException extends RuntimeException {
+    private final String parameter;
     private final int value;
 }
