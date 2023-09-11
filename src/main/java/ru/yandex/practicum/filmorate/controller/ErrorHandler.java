@@ -17,7 +17,7 @@ import static ru.yandex.practicum.filmorate.Constants.*;
 @RestControllerAdvice("ru.yandex.practicum.filmorate")
 public class ErrorHandler {
     @ExceptionHandler
-    public ResponseEntity<String> handleConstraintViolation (ConstraintViolationException e) {
+    public ResponseEntity<String> handleConstraintViolation(ConstraintViolationException e) {
         log.debug("Получен статус 400 Bad request; {}", e.getMessage(), e);
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
