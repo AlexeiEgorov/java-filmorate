@@ -11,10 +11,11 @@ import static ru.yandex.practicum.filmorate.Constants.FILM;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films;
-    private int nextFilmId = 1;
+    private int nextFilmId;
 
     public InMemoryFilmStorage() {
-        films = new HashMap<>();
+        this.films = new HashMap<>();
+        this.nextFilmId = 1;
     }
 
     @Override
@@ -36,8 +37,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getFilm(int id) {
-        return films.get(id);
+    public Optional<Film> getFilm(int id) {
+        return Optional.ofNullable(films.get(id));
     }
 
     @Override

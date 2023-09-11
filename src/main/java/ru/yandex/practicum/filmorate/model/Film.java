@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import ru.yandex.practicum.filmorate.annotation.OnOrAfterDate;
 
@@ -32,5 +33,10 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive(message = "Длительность не может быть неположительной")
     private final int duration;
+    @JsonIgnore
     private Set<Integer> usersWhoLiked = new HashSet<>();
+
+    public int getLikes() {
+        return usersWhoLiked.size();
+    }
 }

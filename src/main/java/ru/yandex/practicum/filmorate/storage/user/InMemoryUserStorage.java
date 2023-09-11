@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,12 +11,14 @@ import java.util.stream.Collectors;
 import static ru.yandex.practicum.filmorate.Constants.USER;
 
 @Component
+@RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users;
-    private int nextUserId = 1;
+    private int nextUserId;
 
     public InMemoryUserStorage() {
-        users = new HashMap<>();
+        this.users = new HashMap<>();
+        this.nextUserId = 1;
     }
 
     @Override
@@ -38,22 +41,14 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUser(int id) {
-        return users.get(id);
+    public Optional<User> getUser(int id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override
     public List<User> getFriends(int userId) {
-        return users.get(userId).getFriends().stream().map(users::get).collect(Collectors.toUnmodifiableList());
-    }
-
-    @Override
-    public User validateAndGetUserIfRegistered(int id) {
-        final User user = users.get(id);
-        if (user == null) {
-            throw new EntityNotFoundException(USER, id);
-        }
-        return user;
+        return getUser(userId).orElseThrow(() -> new EntityNotFoundException(USER, userId)).getFriends().stream()
+                .map(users::get).collect(Collectors.toUnmodifiableList());
     }
 
     @Override

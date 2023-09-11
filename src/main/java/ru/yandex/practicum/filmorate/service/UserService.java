@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -9,14 +10,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static ru.yandex.practicum.filmorate.Constants.USER;
+
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-
-    @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
 
     public User addUser(User user) {
         return userStorage.addUser(user);
@@ -31,25 +30,24 @@ public class UserService {
     }
 
     public User getUser(int id) {
-        return userStorage.validateAndGetUserIfRegistered(id);
+        return userStorage.getUser(id).orElseThrow(() -> new EntityNotFoundException(USER, id));
     }
 
     public void addFriend(int userId, int friendId) {
-        final User user = userStorage.validateAndGetUserIfRegistered(userId);
-        final User friend = userStorage.validateAndGetUserIfRegistered(friendId);
-        user.getFriends().add(friend.getId());
-        friend.getFriends().add(user.getId());
+        final User user = getUser(userId);
+        final User friend = getUser(friendId);
+        user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
     }
 
     public void deleteFriend(int userId, int friendId) {
-        final User user = userStorage.validateAndGetUserIfRegistered(userId);
         userStorage.validateUserRegistration(friendId);
-        user.getFriends().remove(friendId);
+        getUser(userId).getFriends().remove(friendId);
     }
 
     public List<User> getCommonFriends(int firstUserId, int secUserId) {
-        final User user1 = userStorage.validateAndGetUserIfRegistered(firstUserId);
-        final User user2 = userStorage.validateAndGetUserIfRegistered(secUserId);
+        final User user1 = getUser(firstUserId);
+        final User user2 = getUser(secUserId);
         final List<User> commonFriends = new ArrayList<>();
         User fewerFriendsUser;
         User moreFriendsUser;
@@ -64,7 +62,7 @@ public class UserService {
 
         for (int friendId : fewerFriendsUser.getFriends()) {
             if (moreFriendsUser.getFriends().contains(friendId)) {
-                commonFriends.add(userStorage.getUser(friendId));
+                commonFriends.add(userStorage.getUser(friendId).get());
             }
         }
 
