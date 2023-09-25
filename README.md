@@ -1,2 +1,2 @@
 # java-filmorate
-![Filmorate's DB scheme](/DB%20scheme.png)
+![Filmorate's DB scheme](/db_scheme.png)
