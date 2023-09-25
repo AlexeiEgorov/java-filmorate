@@ -29,5 +29,5 @@ public class User {
     @JsonIgnore
     private Set<Integer> friends = new HashSet<>();
     @JsonIgnore
-    private Set<Integer> unconfirmed_friends = new HashSet<>();
+    private Set<Integer> unconfirmedFriends = new HashSet<>();
 }
