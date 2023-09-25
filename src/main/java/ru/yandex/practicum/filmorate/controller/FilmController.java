@@ -1,40 +1,55 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.*;
 
 @RestController
-@Slf4j
+@RequiredArgsConstructor
+@Validated
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int nextFilmId = 1;
-
+    private final FilmService filmService;
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        film.setId(nextFilmId++);
-        films.put(film.getId(), film);
+        filmService.addFilm(film);
         return film;
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        if (films.get(film.getId()) == null) {
-            log.debug("Клиент пытается обновить фильм с незарегестрированным id: {}", film.getId());
-            throw new EntityNotFoundException(film.getClass().toString());
-        }
-        films.put(film.getId(), film);
-        return film;
+        return filmService.updateFilm(film);
     }
 
     @GetMapping
-    public List<Film> getFilms() {
-        return new ArrayList<>(films.values());
+    public Collection<Film> getFilms() {
+        return filmService.getFilms();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable @Positive int id) {
+        return filmService.getFilm(id);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void likeFilm(@PathVariable @Positive int id, @PathVariable @Positive int userId) {
+        filmService.likeFilm(userId, id);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void unlikeFilm(@PathVariable @Positive int id, @PathVariable int userId) {
+        filmService.unlikeFilm(userId, id);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getMostLikedFilms(@RequestParam(defaultValue = "10") @Positive int count) {
+        return filmService.getMostLikedFilms(count);
     }
 }
