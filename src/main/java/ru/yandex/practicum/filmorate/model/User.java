@@ -28,4 +28,6 @@ public class User {
     private final LocalDate birthday;
     @JsonIgnore
     private Set<Integer> friends = new HashSet<>();
+    @JsonIgnore
+    private Set<Integer> unconfirmed_friends = new HashSet<>();
 }

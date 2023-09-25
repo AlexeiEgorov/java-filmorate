@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
@@ -61,7 +63,7 @@ public class FilmControllerTest {
         filmController.addFilm(new Film("Millennium Actress", "", LocalDate.now(), 1));
 
         final Film film2 = new Film(2, "Gray Terminal", "", LocalDate.now(), 1,
-                new HashSet<>());
+                new HashSet<>(), Genre.ACTION, Rating.R);
         assertThrows(EntityNotFoundException.class, () -> filmController.updateFilm(film2), "Контроллер " +
                 "пропустил фильм с незарегестрированным id");
     }
@@ -72,7 +74,7 @@ public class FilmControllerTest {
         final Film film2 = new Film("Berserk", "", LocalDate.now(), 1);
         final Film film3 = new Film("Millennium Actress", "", LocalDate.now(), 1);
         final Film newFilm2 = new Film(2, "Berserk", "",
-                LocalDate.of(1997, 10, 15), 1, new HashSet<>());
+                LocalDate.of(1997, 10, 15), 1, new HashSet<>(), Genre.ACTION, Rating.R);
 
         filmController.addFilm(film1);
         filmController.addFilm(film2);

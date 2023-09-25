@@ -35,6 +35,8 @@ public class Film {
     private final int duration;
     @JsonIgnore
     private Set<Integer> usersWhoLiked = new HashSet<>();
+    private Genre genre;
+    private Rating rating;
 
     public int getLikes() {
         return usersWhoLiked.size();
