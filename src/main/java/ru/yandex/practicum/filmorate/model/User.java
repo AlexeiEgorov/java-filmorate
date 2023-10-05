@@ -5,7 +5,9 @@ import lombok.*;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -13,7 +15,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
-@EqualsAndHashCode(of = {"id"})
 public class User {
     private int id;
     @NotBlank(message = "email не может быть пустым")
@@ -28,6 +29,14 @@ public class User {
     private final LocalDate birthday;
     @JsonIgnore
     private Set<Integer> friends = new HashSet<>();
-    @JsonIgnore
-    private Set<Integer> unconfirmedFriends = new HashSet<>();
+
+    public Map<String, Object> toMap() {
+        final Map<String, Object> values = new HashMap<>();
+        values.put("id", id);
+        values.put("email", email);
+        values.put("login", login);
+        values.put("name", name);
+        values.put("birthday", birthday);
+        return values;
+    }
 }

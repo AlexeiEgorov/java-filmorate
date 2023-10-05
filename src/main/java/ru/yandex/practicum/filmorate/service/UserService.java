@@ -30,43 +30,19 @@ public class UserService {
     }
 
     public User getUser(int id) {
-        return userStorage.getUser(id).orElseThrow(() -> new EntityNotFoundException(USER, id));
+        return userStorage.findUser(id).orElseThrow(() -> new EntityNotFoundException(USER, id));
     }
 
     public void addFriend(int userId, int friendId) {
-        final User user = getUser(userId);
-        final User friend = getUser(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        userStorage.addFriend(userId, friendId);
     }
 
     public void deleteFriend(int userId, int friendId) {
-        userStorage.validateUserRegistration(friendId);
-        getUser(userId).getFriends().remove(friendId);
+        userStorage.deleteFriend(userId, friendId);
     }
 
     public List<User> getCommonFriends(int firstUserId, int secUserId) {
-        final User user1 = getUser(firstUserId);
-        final User user2 = getUser(secUserId);
-        final List<User> commonFriends = new ArrayList<>();
-        User fewerFriendsUser;
-        User moreFriendsUser;
-
-        if (user1.getFriends().size() <= user2.getFriends().size()) {
-            fewerFriendsUser = user1;
-            moreFriendsUser = user2;
-        } else {
-            fewerFriendsUser = user2;
-            moreFriendsUser = user1;
-        }
-
-        for (int friendId : fewerFriendsUser.getFriends()) {
-            if (moreFriendsUser.getFriends().contains(friendId)) {
-                commonFriends.add(userStorage.getUser(friendId).get());
-            }
-        }
-
-        return commonFriends;
+        return userStorage.getCommonFriends(firstUserId, secUserId);
     }
 
     public List<User> getFriends(int userId) {

@@ -68,7 +68,7 @@ public class UserControllerTest {
                 LocalDate.of(2000, 1, 1)));
 
         final User user2 = new User(2, "@emailcom", "Caleb", "",
-                LocalDate.now().minusYears(1), new HashSet<>(), new HashSet<>());
+                LocalDate.now().minusYears(1), new HashSet<>());
         assertThrows(EntityNotFoundException.class, () -> userController.updateUser(user2), "Контроллер " +
                 "пропустил фильм с незарегестрированным id");
     }
@@ -82,7 +82,7 @@ public class UserControllerTest {
         final User user3 = new User("@emailcom", "login", "Vitaliy",
                 LocalDate.of(2000, 1, 1));
         final User newUser3 = new User(3, "@emailcom", "EvilArthas", "Vitaliy",
-                LocalDate.of(2000, 1, 1), new HashSet<>(), new HashSet<>());
+                LocalDate.of(2000, 1, 1), new HashSet<>());
         userController.addUser(user1);
         userController.addUser(user2);
         userController.addUser(user3);
