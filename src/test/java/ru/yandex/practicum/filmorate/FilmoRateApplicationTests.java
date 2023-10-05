@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.LOCAL_DATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.yandex.practicum.filmorate.Constants.FILM;
 import static ru.yandex.practicum.filmorate.Constants.USER;
@@ -38,27 +39,27 @@ class FilmoRateApplicationTests {
 				.email("crystal@light.com")
 				.login("Crystal")
 				.name("")
-				.birthday(LocalDate.of(192, 12, 12))
+				.birthday(LocalDate.now())
 				.friends(null)
 				.build();
 		User user2 = User.builder()
 				.email("crystal2@light.com")
 				.login("Crystal2")
 				.name("")
-				.birthday(LocalDate.of(192, 12, 12))
+				.birthday(LocalDate.now())
 				.build();
 		User user3 = User.builder()
 				.email("leapinglight@westeast.com")
 				.login("Light")
 				.name("")
-				.birthday(LocalDate.of(192, 12, 12))
+				.birthday(LocalDate.now())
 				.friends(null)
 				.build();
 
 		Film film1 = Film.builder()
 				.name("Matrix")
 				.description("")
-				.releaseDate(LocalDate.of(1997, 12, 27))
+				.releaseDate(LocalDate.now())
 				.duration(1)
 				.usersWhoLiked(null)
 				.genres(List.of(
@@ -78,7 +79,7 @@ class FilmoRateApplicationTests {
 		Film film2 = Film.builder()
 				.name("The diagnosis and lectures of Ivan Pavlov")
 				.description("")
-				.releaseDate(LocalDate.of(1927, 12, 27))
+				.releaseDate(LocalDate.now())
 				.duration(1)
 				.usersWhoLiked(null)
 				.genres(List.of(
