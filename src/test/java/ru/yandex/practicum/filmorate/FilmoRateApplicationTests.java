@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.LOCAL_DATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.yandex.practicum.filmorate.Constants.FILM;
 import static ru.yandex.practicum.filmorate.Constants.USER;
