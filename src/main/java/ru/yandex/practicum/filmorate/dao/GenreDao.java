@@ -8,7 +8,10 @@ import java.util.List;
 
 public interface GenreDao {
     Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException;
+
     Genre getById(int id);
+
     List<Genre> getAll();
+
     List<Genre> getFilmGenres(int filmId);
 }

@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface MpaDao {
     Mpa getById(int id);
+
     List<Mpa> getAll();
+
     Mpa mapRowToMpa(ResultSet resultSet, int ronNum) throws SQLException;
 }
