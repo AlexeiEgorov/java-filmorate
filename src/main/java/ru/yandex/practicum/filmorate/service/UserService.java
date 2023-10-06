@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -12,8 +14,9 @@ import java.util.List;
 import static ru.yandex.practicum.filmorate.Constants.USER;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserService {
+    @Qualifier("userDbStorage")
     private final UserStorage userStorage;
 
     public User addUser(User user) {
@@ -29,7 +32,7 @@ public class UserService {
     }
 
     public User getUser(int id) {
-        return userStorage.findUser(id).orElseThrow(() -> new EntityNotFoundException(USER, id));
+        return userStorage.findUser(id);
     }
 
     public void addFriend(int userId, int friendId) {

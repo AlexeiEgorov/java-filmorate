@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.model;
 import java.time.LocalDate;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import ru.yandex.practicum.filmorate.annotation.OnOrAfterDate;
 
@@ -32,15 +31,8 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive(message = "Длительность не может быть неположительной")
     private final int duration;
-    @JsonIgnore
-    private Set<Integer> usersWhoLiked = new HashSet<>();
-    private List<Genre> genres = new ArrayList<>();
+    private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
     private Mpa mpa;
-
-    @JsonIgnore
-    public int getLikes() {
-        return usersWhoLiked.size();
-    }
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

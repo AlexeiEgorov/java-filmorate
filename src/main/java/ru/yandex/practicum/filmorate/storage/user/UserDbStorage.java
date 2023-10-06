@@ -20,7 +20,6 @@ import java.util.Optional;
 import static ru.yandex.practicum.filmorate.Constants.USER;
 
 @Repository("userDbStorage")
-@Primary
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -58,11 +57,11 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> findUser(int id) {
+    public User findUser(int id) {
         String sql = "select * from users where id =  ?";
 
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, this::mapRowToUser, id));
+            return jdbcTemplate.queryForObject(sql, this::mapRowToUser, id);
         } catch (EmptyResultDataAccessException e) {
             throw new EntityNotFoundException(USER, id);
         }
@@ -95,28 +94,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(int firstUserId, int secUserId) {
-        final List<User> firstUserFriends = getFriends(firstUserId);
-        final List<User> secUserFriends = getFriends(secUserId);
+        String sql = "select * from users where id in " +
+                "(select uf1.friend_id from user_friend as uf1 " +
+                "inner join user_friend as uf2 on uf1.friend_id = uf2.friend_id " +
+                "where uf1.user_id = ? and uf2.user_id = ?)";
 
-        final List<User> commonFriends = new ArrayList<>();
-        List<User> fewerFriends;
-        List<User> moreFriends;
-
-        if (firstUserFriends.size() <= secUserFriends.size()) {
-            fewerFriends = firstUserFriends;
-            moreFriends = secUserFriends;
-        } else {
-            fewerFriends = secUserFriends;
-            moreFriends = firstUserFriends;
-        }
-
-        for (User friend : fewerFriends) {
-            if (moreFriends.contains(friend)) {
-                commonFriends.add(friend);
-            }
-        }
-
-        return commonFriends;
+        return jdbcTemplate.query(sql, this::mapRowToUser, firstUserId, secUserId);
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNumber) throws SQLException {

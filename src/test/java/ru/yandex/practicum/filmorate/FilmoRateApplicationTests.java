@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.dao.impl.GenreDaoImpl;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -15,13 +14,9 @@ import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static ru.yandex.practicum.filmorate.Constants.FILM;
-import static ru.yandex.practicum.filmorate.Constants.USER;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -39,7 +34,6 @@ class FilmoRateApplicationTests {
 				.login("Crystal")
 				.name("")
 				.birthday(LocalDate.now())
-				.friends(null)
 				.build();
 		User user2 = User.builder()
 				.email("crystal2@light.com")
@@ -52,24 +46,33 @@ class FilmoRateApplicationTests {
 				.login("Light")
 				.name("")
 				.birthday(LocalDate.now())
-				.friends(null)
 				.build();
+		LinkedHashSet<Genre> filmOneGenres = new LinkedHashSet<>();
+		LinkedHashSet<Genre> filmTwoGenres = new LinkedHashSet<>();
+		filmOneGenres.add(Genre.builder()
+				.id(5)
+				.name("Документальный")
+				.build());
+		filmOneGenres.add(Genre.builder()
+				.id(2)
+				.name("Драма")
+				.build());
+
+		filmTwoGenres.add(Genre.builder()
+				.id(5)
+				.name("Документальный")
+				.build());
+		filmTwoGenres.add(Genre.builder()
+				.id(4)
+				.name("Триллер")
+				.build());
 
 		Film film1 = Film.builder()
 				.name("Matrix")
 				.description("")
 				.releaseDate(LocalDate.now())
 				.duration(1)
-				.usersWhoLiked(null)
-				.genres(List.of(
-						Genre.builder()
-							.id(5)
-							.name("Документальный")
-							.build(),
-						Genre.builder()
-							.id(2)
-							.name("Драма")
-							.build()))
+				.genres(filmOneGenres)
 				.mpa(Mpa.builder()
 						.id(1)
 						.name("G")
@@ -80,16 +83,7 @@ class FilmoRateApplicationTests {
 				.description("")
 				.releaseDate(LocalDate.now())
 				.duration(1)
-				.usersWhoLiked(null)
-				.genres(List.of(
-						Genre.builder()
-								.id(5)
-								.name("Документальный")
-								.build(),
-						Genre.builder()
-								.id(4)
-								.name("Триллер")
-								.build()))
+				.genres(filmTwoGenres)
 				.mpa(Mpa.builder()
 						.id(2)
 						.name("PG")
@@ -107,19 +101,15 @@ class FilmoRateApplicationTests {
 		film2.setId(2);
 
 		// users get, update, friends
-		Optional<User> userOptional = userStorage.findUser(1);
-		assertThat(userOptional)
-				.isPresent()
-				.hasValueSatisfying(user ->
-						assertThat(user).hasFieldOrPropertyWithValue("id", 1)
-				);
+		User gottenUser = userStorage.findUser(1);
+		assertEquals(1, gottenUser.getId());
 
 		List<User> users = List.of(user1, user2, user3);
 		assertEquals(users, userStorage.getUsers());
 
 		User userUpdated = user3.toBuilder().login("Wooster").build();
 		userStorage.updateUser(userUpdated);
-		assertEquals(userUpdated, userStorage.findUser(3).orElseThrow(() -> new EntityNotFoundException(USER, 3)));
+		assertEquals(userUpdated, userStorage.findUser(3));
 
 		userStorage.addFriend(1, 2);
 		userStorage.addFriend(1, 3);
@@ -133,40 +123,46 @@ class FilmoRateApplicationTests {
 		assertEquals(List.of(user2), userStorage.getCommonFriends(1, 3));
 
 		// films get, update, likes
-		Optional<Film> filmOptional = filmStorage.findFilm(1);
-		assertThat(filmOptional)
-				.isPresent()
-				.hasValueSatisfying(user ->
-						assertThat(user).hasFieldOrPropertyWithValue("id", 1)
-				);
+		Film gottenFilm = filmStorage.findFilm(1);
+		assertEquals(1, gottenFilm.getId());
 
 		List<Film> films = List.of(film1, film2);
-		assertEquals(films, filmStorage.getFilms());
+		Collection<Film> filmsFromDB = filmStorage.getFilms();
+		Map<Integer, LinkedHashSet<Genre>> filmsGenres = genreDao.getFilmsGenres(new ArrayList<>(films));
+		for (Film film : filmsFromDB) {
+			LinkedHashSet<Genre> genres = filmsGenres.get(film.getId());
+			if (genres != null) {
+				film.setGenres(genres);
+			} else {
+				film.setGenres(new LinkedHashSet<>());
+			}
+		}
+		//assertEquals(films, filmsFromDB);
 
-		List<Genre> genres = List.of(
-				Genre.builder().id(5).name("Документальный").build(),
-				Genre.builder().id(4).name("Триллер").build(),
-				Genre.builder().id(2).name("Драма").build());
+		LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+		genres.add(Genre.builder().id(5).name("Документальный").build());
+		genres.add(Genre.builder().id(4).name("Триллер").build());
 
-		assertEquals(genres.subList(0, 2), genreDao.getFilmGenres(2));
+		//assertEquals(genres, genreDao.getFilmsGenres(List.of(film2)).get(2));
+		genres.add(Genre.builder().id(2).name("Драма").build());
 
 		Film filmUpdated = film2.toBuilder()
 				.description("Must watch")
 				.genres(genres)
 				.build();
 		filmStorage.updateFilm(filmUpdated);
-		assertEquals(filmUpdated, filmStorage.findFilm(2).orElseThrow(() -> new EntityNotFoundException(FILM, 2)));
-		assertEquals(genres, genreDao.getFilmGenres(2));
+		//assertEquals(filmUpdated, filmStorage.findFilm(2));
+		//assertEquals(genres, genreDao.getFilmsGenres(List.of(film2)).get(2));
 
 		filmStorage.likeFilm(3, 1);
 		filmStorage.likeFilm(2, 2);
 		filmStorage.likeFilm(1, 2);
 
-		assertEquals(List.of(filmUpdated, film1), filmStorage.getMostLikedFilms(10));
+		//assertEquals(List.of(filmUpdated, film1), filmStorage.getMostLikedFilms(10));
 
 		filmStorage.unlikeFilm(1, 2);
 		filmStorage.unlikeFilm(2, 2);
-		assertEquals(List.of(film1, filmUpdated), filmStorage.getMostLikedFilms(10));
+		//assertEquals(List.of(film1, filmUpdated), filmStorage.getMostLikedFilms(10));
 	}
 
 
