@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import ru.yandex.practicum.filmorate.annotation.OnOrAfterDate;
 
@@ -15,10 +13,10 @@ import javax.validation.constraints.Size;
 
 
 @Data
+@Builder(toBuilder = true)
 @RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
-@EqualsAndHashCode(of = {"id"})
 public class Film {
     public static final String FIRST_FILM_RELEASE = "1895-12-28";
     private int id;
@@ -33,12 +31,21 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive(message = "Длительность не может быть неположительной")
     private final int duration;
-    @JsonIgnore
-    private Set<Integer> usersWhoLiked = new HashSet<>();
-    private Genre genre;
-    private Rating rating;
+    private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
+    private Mpa mpa;
 
-    public int getLikes() {
-        return usersWhoLiked.size();
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("id", id);
+        values.put("name", name);
+        values.put("description", description);
+        values.put("release_date", releaseDate);
+        values.put("duration", duration);
+        if (mpa == null) {
+            values.put("mpa_id", null);
+        } else {
+            values.put("mpa_id", mpa.getId());
+        }
+        return values;
     }
 }

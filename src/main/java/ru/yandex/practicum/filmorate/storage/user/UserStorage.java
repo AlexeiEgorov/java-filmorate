@@ -4,7 +4,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 public interface UserStorage {
     User addUser(User user);
@@ -13,9 +12,13 @@ public interface UserStorage {
 
     Collection<User> getUsers();
 
-    Optional<User> getUser(int id);
+    User findUser(int id);
 
     List<User> getFriends(int userId);
 
-    void validateUserRegistration(int userId);
+    void addFriend(int userId, int friendId);
+
+    void deleteFriend(int userId, int friendId);
+
+    List<User> getCommonFriends(int firstUserId, int secUserId);
 }

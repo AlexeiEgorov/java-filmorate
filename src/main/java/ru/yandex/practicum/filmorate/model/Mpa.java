@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
-public class Genre {
+public class Mpa {
     private int id;
     private String name;
 }
